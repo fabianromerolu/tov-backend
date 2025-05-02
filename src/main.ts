@@ -7,7 +7,10 @@ async function bootstrap() {
 
   // Habilitamos CORS para permitir peticiones desde tu frontend
   app.enableCors({
-    origin: 'http://localhost:5173',  // Ajusta al puerto/url donde corre tu React/Vite
+    origin: [
+      'http://localhost:5173', //esto es para desarrolo local
+      'https://tov-v2.vercel.app', // dominio de producción
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
