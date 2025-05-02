@@ -16,7 +16,7 @@ export class PredictionService {
   constructor(private readonly http: HttpService) {}
 
   async predict(input: InputDataDto): Promise<DataServidor> {
-    const url = `${this.mlUrl}/predict`;
+    const url = `${this.mlUrl.replace(/\/$/, '')}/predict`;
     this.logger.log(`Llamando a ML service en ${url} con payload: ${JSON.stringify(input)}`);
 
     try {
