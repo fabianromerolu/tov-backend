@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // Habilitamos CORS para permitir peticiones desde tu frontend
   app.enableCors({
-    origin: [process.env.FRONTEND_URL, 'https://tov-v2.vercel.app'],
+    origin: [process.env.FRONTEND_URL],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
