@@ -33,7 +33,7 @@ export class ContactService {
         <!-- Header -->
         <tr>
           <td style="background:#6b46c1; padding:20px; text-align:center;">
-            <img src="https://tov-v2.vercel.app/logoindex.png" alt="TOV" width="120" style="display:block; margin:0 auto 10px;" />
+            <img src="https://tov-v2.vercel.app/logo.png" alt="TOV" width="120" style="display:block; margin:0 auto 10px;" />
             <h1 style="color:#ffffff; font-size:24px; margin:0;">Hemos recibido tu comunicación</h1>
           </td>
         </tr>
