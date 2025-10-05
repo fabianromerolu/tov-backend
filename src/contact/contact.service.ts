@@ -1,30 +1,20 @@
 // src/contact/contact.service.ts
+// src/contact/contact.service.ts
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactDto } from './dto/create-contact.dto';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class ContactService {
   private readonly logger = new Logger(ContactService.name);
-  private transporter: nodemailer.Transporter;
+  private readonly resend = new Resend(process.env.RESEND_API_KEY!);
 
-  constructor(private readonly prisma: PrismaService) {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateContactDto) {
     const contact = await this.prisma.contact.create({ data });
 
-    // 2) Prepara un HTML estilizado
     const html = `
 <table width="100%" cellpadding="0" cellspacing="0" style="font-family:Arial, sans-serif; background:#f5f5f5; padding:20px;">
   <tr>
@@ -63,20 +53,25 @@ export class ContactService {
 </table>
     `;
 
-    // 3) Envía el correo, pero no bloquea la respuesta si falla
     try {
-      await this.transporter.sendMail({
-        from: `"Tecnoobservatorio de Violencia" <no-reply@tov.com>`,
-        to: data.email,
+      const from = process.env.MAIL_FROM || 'Tecnoobservatorio <onboarding@resend.dev>';
+      const res = await this.resend.emails.send({
+        from,
+        to: [data.email],
         subject: 'Tecnoobservatorio de Violencia - Copia de tu mensaje',
         html,
       });
-      this.logger.log(`Email de confirmación enviado a ${data.email}`);
-    } catch (err) {
-      this.logger.error(`Falló el envío de email: ${err.message}`);
-      // no relanzamos el error
+      this.logger.log(`Email enviado (Resend): ${res ?? 'ok'}`);
+    } catch (err: any) {
+      this.logger.error(`Falló email (Resend): ${err?.message}`);
+      // no relanzamos, igual retornamos el contacto guardado
     }
 
     return contact;
   }
 }
+
+
+
+
+ 
