@@ -1,7 +1,7 @@
 # tovV2/tov-backend/Dockerfile
 
 ### STAGE 1: build ###
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 # 1) Instala deps (incluyendo devDependencies)
@@ -15,19 +15,15 @@ RUN npx prisma generate
 # 3) Copia el resto del código y compila
 COPY . .
 RUN npm run build
+RUN npm prune --omit=dev
 
 ### STAGE 2: producción ###
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
-# 4) Instala solo prod deps
+# 4) Copia el build, las dependencias de producción y Prisma
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-
-# 5) Copia el build y el cliente de Prisma generado
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 

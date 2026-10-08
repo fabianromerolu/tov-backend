@@ -1,9 +1,17 @@
 // src/prisma/prisma.service.ts
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(PrismaService.name);
 
   async onModuleInit() {
@@ -15,18 +23,21 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         await this.$connect();
         this.logger.log('✔️ Conectado a la base de datos');
         return;
-      } catch (err) {
+      } catch {
         retries++;
-        this.logger.warn(`Base de datos no lista (intento ${retries}/${maxRetries}), reintentando en 5s...`);
-        await new Promise(res => setTimeout(res, 5000));
+        this.logger.warn(
+          `Base de datos no lista (intento ${retries}/${maxRetries}), reintentando en 5s...`,
+        );
+        await new Promise((res) => setTimeout(res, 5000));
       }
     }
 
-    throw new Error('No se pudo conectar a la base de datos tras múltiples intentos');
+    throw new Error(
+      'No se pudo conectar a la base de datos tras múltiples intentos',
+    );
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
   }
 }
-

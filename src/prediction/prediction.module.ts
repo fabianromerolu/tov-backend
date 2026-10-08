@@ -15,6 +15,3 @@ import { PredictionController } from './prediction.controller';
   controllers: [PredictionController],
 })
 export class PredictionModule {}
-
-
-

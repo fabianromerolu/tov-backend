@@ -5,10 +5,26 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { Resend } from 'resend';
 
+function escapeHtml(value: string): string {
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[character] ?? character,
+  );
+}
+
 @Injectable()
 export class ContactService {
   private readonly logger = new Logger(ContactService.name);
-  private readonly resend = new Resend(process.env.RESEND_API_KEY!);
+  private readonly resend = process.env.RESEND_API_KEY
+    ? new Resend(process.env.RESEND_API_KEY)
+    : null;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -30,10 +46,10 @@ export class ContactService {
         <!-- Body -->
         <tr>
           <td style="padding:30px; color:#333333; font-size:16px; line-height:1.5;">
-            <p>Hola <strong>${data.name}</strong>,</p>
+            <p>Hola <strong>${escapeHtml(data.name)}</strong>,</p>
             <p>Hemos recibido tu mensaje y hemos guardado una copia en nuestros registros:</p>
             <blockquote style="margin:20px 0; padding:15px 20px; background:#f0e8ff; border-left:4px solid #6b46c1; color:#555;">
-              ${data.message}
+              ${escapeHtml(data.message)}
             </blockquote>
             <p>Te responderemos lo antes posible. ¡Gracias por escribirnos!</p>
           </td>
@@ -54,24 +70,26 @@ export class ContactService {
     `;
 
     try {
-      const from = process.env.MAIL_FROM || 'Tecnoobservatorio <onboarding@resend.dev>';
-      const res = await this.resend.emails.send({
+      const from =
+        process.env.MAIL_FROM || 'Tecnoobservatorio <onboarding@resend.dev>';
+      if (!this.resend) {
+        this.logger.warn(
+          'RESEND_API_KEY no configurada; contacto guardado sin correo',
+        );
+        return contact;
+      }
+      await this.resend.emails.send({
         from,
         to: [data.email],
         subject: 'Tecnoobservatorio de Violencia - Copia de tu mensaje',
         html,
       });
-      this.logger.log(`Email enviado (Resend): ${res ?? 'ok'}`);
-    } catch (err: any) {
-      this.logger.error(`Falló email (Resend): ${err?.message}`);
+      this.logger.log('Email de contacto enviado');
+    } catch {
+      this.logger.error('Falló el envío del correo de contacto');
       // no relanzamos, igual retornamos el contacto guardado
     }
 
     return contact;
   }
 }
-
-
-
-
- 

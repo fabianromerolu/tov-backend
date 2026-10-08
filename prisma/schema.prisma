@@ -23,3 +23,15 @@ model Contact {
   message   String   // motivo o mensaje
   createdAt DateTime @default(now())
 }
+
+model Encuesta {
+  id                     Int      @id @default(autoincrement())
+  emociones              Json
+  otraEmocion            String?  @db.VarChar(80)
+  nivelIdentificacion    Int
+  impactoAutopercepcion  String   @db.VarChar(32)
+  deseaMasIniciativas    String   @db.VarChar(16)
+  comentario             String?  @db.VarChar(500)
+  consentimiento         Boolean
+  createdAt              DateTime @default(now())
+}

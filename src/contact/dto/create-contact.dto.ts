@@ -2,21 +2,24 @@
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
 export class CreateContactDto {
-  @IsNotEmpty() @Length(2, 100)
-  name: string;       // nombre
+  @IsNotEmpty()
+  @Length(2, 100)
+  name: string; // nombre
 
-  @IsNotEmpty() @Length(2, 100)
-  lastName: string;   // apellido
+  @IsNotEmpty()
+  @Length(2, 100)
+  lastName: string; // apellido
 
   @IsEmail()
   email: string;
 
   @IsNotEmpty()
-  country: string;    // país
+  country: string; // país
 
   @IsNotEmpty()
-  phone: string;      // teléfono
+  phone: string; // teléfono
 
-  @IsNotEmpty() @Length(10, 1000)
-  message: string;    // motivo o mensaje
+  @IsNotEmpty()
+  @Length(10, 1000)
+  message: string; // motivo o mensaje
 }
