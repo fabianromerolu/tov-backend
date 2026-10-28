@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEncuestaDto } from './dto/create-encuesta.dto';
+import {
+  agregarResultados,
+  INICIO_ENTREGAS,
+  ResultadosEncuesta,
+} from './encuesta-resultados';
 
 const PERSONAL_DATA = [
   /[\w.+-]+@[\w.-]+\.[a-z]{2,}/i,
@@ -30,6 +35,28 @@ function privateText(value: string | null): boolean {
 @Injectable()
 export class EncuestaService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async resultados(): Promise<ResultadosEncuesta> {
+    const desde = { createdAt: { gte: INICIO_ENTREGAS } };
+    const [respuestas, comentarios] = await Promise.all([
+      this.prisma.encuesta.findMany({
+        where: desde,
+        select: {
+          emociones: true,
+          nivelIdentificacion: true,
+          impactoAutopercepcion: true,
+          deseaMasIniciativas: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.encuesta.count({
+        where: { ...desde, comentario: { not: null } },
+      }),
+    ]);
+
+    // La API pública entrega solo agregados; nunca envía comentarios ni filas.
+    return agregarResultados(respuestas, comentarios);
+  }
 
   async create(dto: CreateEncuestaDto): Promise<{ ok: true }> {
     // Responder igual a un bot que completó la trampa, sin guardar su envío.

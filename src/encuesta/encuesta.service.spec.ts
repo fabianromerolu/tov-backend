@@ -16,11 +16,46 @@ const validResponse: CreateEncuestaDto = {
 
 describe('EncuestaService', () => {
   const create = jest.fn();
+  const findMany = jest.fn();
+  const count = jest.fn();
   const service = new EncuestaService({
-    encuesta: { create },
+    encuesta: { create, findMany, count },
   } as unknown as PrismaService);
 
-  beforeEach(() => create.mockReset());
+  beforeEach(() => {
+    create.mockReset();
+    findMany.mockReset();
+    count.mockReset();
+  });
+
+  it('publica solo agregados de respuestas desde el reparto', async () => {
+    findMany.mockResolvedValue([
+      {
+        emociones: ['valorada'],
+        nivelIdentificacion: 5,
+        impactoAutopercepcion: 'si',
+        deseaMasIniciativas: 'si',
+        createdAt: new Date('2026-10-26T23:00:00Z'),
+        comentario: 'Texto que no debe salir',
+      },
+    ]);
+    count.mockResolvedValue(1);
+
+    const resultado = await service.resultados();
+    expect(findMany).toHaveBeenCalledWith({
+      where: { createdAt: { gte: new Date('2026-10-26T05:00:00Z') } },
+      select: {
+        emociones: true,
+        nivelIdentificacion: true,
+        impactoAutopercepcion: true,
+        deseaMasIniciativas: true,
+        createdAt: true,
+      },
+    });
+    expect(resultado.total).toBe(1);
+    expect(resultado.comentarios).toBe(1);
+    expect(JSON.stringify(resultado)).not.toContain('Texto que no debe salir');
+  });
 
   it('guarda texto limpio sin datos de la solicitud y responde sin id', async () => {
     create.mockResolvedValue({ id: 42 });
