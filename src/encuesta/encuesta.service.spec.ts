@@ -43,7 +43,10 @@ describe('EncuestaService', () => {
 
     const resultado = await service.resultados();
     expect(findMany).toHaveBeenCalledWith({
-      where: { createdAt: { gte: new Date('2026-10-26T05:00:00Z') } },
+      where: {
+        createdAt: { gte: new Date('2026-10-26T05:00:00Z') },
+        id: { notIn: [220, 221] },
+      },
       select: {
         emociones: true,
         nivelIdentificacion: true,
@@ -54,6 +57,13 @@ describe('EncuestaService', () => {
     });
     expect(resultado.total).toBe(1);
     expect(resultado.comentarios).toBe(1);
+    expect(count).toHaveBeenCalledWith({
+      where: {
+        createdAt: { gte: new Date('2026-10-26T05:00:00Z') },
+        id: { notIn: [220, 221] },
+        comentario: { not: null },
+      },
+    });
     expect(JSON.stringify(resultado)).not.toContain('Texto que no debe salir');
   });
 

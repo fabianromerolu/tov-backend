@@ -37,7 +37,12 @@ export class EncuestaService {
   constructor(private readonly prisma: PrismaService) {}
 
   async resultados(): Promise<ResultadosEncuesta> {
-    const desde = { createdAt: { gte: INICIO_ENTREGAS } };
+    // El equipo identificó estos dos envíos posteriores al corte como pruebas.
+    // Las dos pruebas del 8 de octubre ya quedan fuera por INICIO_ENTREGAS.
+    const desde = {
+      createdAt: { gte: INICIO_ENTREGAS },
+      id: { notIn: [220, 221] },
+    };
     const [respuestas, comentarios] = await Promise.all([
       this.prisma.encuesta.findMany({
         where: desde,
