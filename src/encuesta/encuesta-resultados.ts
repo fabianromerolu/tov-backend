@@ -1,8 +1,8 @@
 import { EMOCIONES } from './dto/create-encuesta.dto';
 
-// Las dos pruebas de la encuesta se registraron el 8 de octubre. El reparto
-// de tarjetas comenzó el lunes 26, hora de Colombia (UTC-5).
+// Semana del reparto de tarjetas, en hora de Colombia (UTC-5).
 export const INICIO_ENTREGAS = new Date('2026-10-26T05:00:00.000Z');
+export const FIN_SEMANA_ENTREGAS = new Date('2026-11-02T05:00:00.000Z');
 
 const IMPACTOS = ['si', 'un_poco', 'no', 'prefiero_no_responder'] as const;
 const INICIATIVAS = ['si', 'tal_vez', 'no'] as const;
@@ -18,6 +18,7 @@ export type RespuestaParaResultados = {
 export type ResultadosEncuesta = {
   generadoEn: string;
   desde: '2026-10-26';
+  hasta: '2026-11-01';
   total: number;
   comentarios: number;
   porDia: { fecha: string; total: number }[];
@@ -81,6 +82,7 @@ export function agregarResultados(
   return {
     generadoEn: generadoEn.toISOString(),
     desde: '2026-10-26',
+    hasta: '2026-11-01',
     total: respuestas.length,
     comentarios,
     porDia: [...dias.entries()]

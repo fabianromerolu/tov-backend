@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateEncuestaDto } from './dto/create-encuesta.dto';
 import {
   agregarResultados,
+  FIN_SEMANA_ENTREGAS,
   INICIO_ENTREGAS,
   ResultadosEncuesta,
 } from './encuesta-resultados';
@@ -37,15 +38,12 @@ export class EncuestaService {
   constructor(private readonly prisma: PrismaService) {}
 
   async resultados(): Promise<ResultadosEncuesta> {
-    // El equipo identificó estos dos envíos posteriores al corte como pruebas.
-    // Las dos pruebas del 8 de octubre ya quedan fuera por INICIO_ENTREGAS.
-    const desde = {
-      createdAt: { gte: INICIO_ENTREGAS },
-      id: { notIn: [220, 221] },
+    const semana = {
+      createdAt: { gte: INICIO_ENTREGAS, lt: FIN_SEMANA_ENTREGAS },
     };
     const [respuestas, comentarios] = await Promise.all([
       this.prisma.encuesta.findMany({
-        where: desde,
+        where: semana,
         select: {
           emociones: true,
           nivelIdentificacion: true,
@@ -55,7 +53,7 @@ export class EncuestaService {
         },
       }),
       this.prisma.encuesta.count({
-        where: { ...desde, comentario: { not: null } },
+        where: { ...semana, comentario: { not: null } },
       }),
     ]);
 

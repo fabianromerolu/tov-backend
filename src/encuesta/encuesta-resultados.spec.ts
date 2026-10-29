@@ -1,4 +1,8 @@
-import { agregarResultados, INICIO_ENTREGAS } from './encuesta-resultados';
+import {
+  agregarResultados,
+  FIN_SEMANA_ENTREGAS,
+  INICIO_ENTREGAS,
+} from './encuesta-resultados';
 
 describe('agregarResultados', () => {
   it('cuenta selecciones múltiples y usa la fecha de Colombia', () => {
@@ -24,6 +28,8 @@ describe('agregarResultados', () => {
     );
 
     expect(INICIO_ENTREGAS.toISOString()).toBe('2026-10-26T05:00:00.000Z');
+    expect(FIN_SEMANA_ENTREGAS.toISOString()).toBe('2026-11-02T05:00:00.000Z');
+    expect(resultado.hasta).toBe('2026-11-01');
     expect(resultado.total).toBe(2);
     expect(resultado.comentarios).toBe(1);
     expect(resultado.emociones.valorada).toBe(1);

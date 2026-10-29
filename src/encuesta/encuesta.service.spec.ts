@@ -28,7 +28,7 @@ describe('EncuestaService', () => {
     count.mockReset();
   });
 
-  it('publica solo agregados de respuestas desde el reparto', async () => {
+  it('publica solo agregados de respuestas de la semana del reparto', async () => {
     findMany.mockResolvedValue([
       {
         emociones: ['valorada'],
@@ -44,8 +44,10 @@ describe('EncuestaService', () => {
     const resultado = await service.resultados();
     expect(findMany).toHaveBeenCalledWith({
       where: {
-        createdAt: { gte: new Date('2026-10-26T05:00:00Z') },
-        id: { notIn: [220, 221] },
+        createdAt: {
+          gte: new Date('2026-10-26T05:00:00Z'),
+          lt: new Date('2026-11-02T05:00:00Z'),
+        },
       },
       select: {
         emociones: true,
@@ -59,8 +61,10 @@ describe('EncuestaService', () => {
     expect(resultado.comentarios).toBe(1);
     expect(count).toHaveBeenCalledWith({
       where: {
-        createdAt: { gte: new Date('2026-10-26T05:00:00Z') },
-        id: { notIn: [220, 221] },
+        createdAt: {
+          gte: new Date('2026-10-26T05:00:00Z'),
+          lt: new Date('2026-11-02T05:00:00Z'),
+        },
         comentario: { not: null },
       },
     });
