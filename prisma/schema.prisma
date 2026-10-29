@@ -35,3 +35,10 @@ model Encuesta {
   consentimiento         Boolean
   createdAt              DateTime @default(now())
 }
+
+// Buzón posterior al cierre: sus mensajes no forman parte de Encuesta ni de sus agregados.
+model BuzonSugerencia {
+  id         Int      @id @default(autoincrement())
+  comentario String   @db.VarChar(500)
+  createdAt  DateTime @default(now())
+}
