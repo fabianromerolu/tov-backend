@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Header, Post } from '@nestjs/common';
-import { CreateEncuestaDto } from './dto/create-encuesta.dto';
+import { Controller, Get, GoneException, Header, Post } from '@nestjs/common';
 import { EncuestaService } from './encuesta.service';
 
 @Controller('api/encuestas')
@@ -7,8 +6,8 @@ export class EncuestaController {
   constructor(private readonly encuesta: EncuestaService) {}
 
   @Post()
-  create(@Body() dto: CreateEncuestaDto): Promise<{ ok: true }> {
-    return this.encuesta.create(dto);
+  create(): never {
+    throw new GoneException('La campaña finalizó y la encuesta está cerrada.');
   }
 
   @Get('resultados')

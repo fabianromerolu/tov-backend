@@ -38,20 +38,19 @@ describe('POST /api/encuestas', () => {
     website: '',
   };
 
-  it('acepta una respuesta y no expone identificadores', async () => {
+  it('cierra la encuesta incluso para una respuesta válida', async () => {
     await request(app.getHttpServer())
       .post('/api/encuestas')
       .send(valid)
-      .expect(201)
-      .expect({ ok: true });
-    expect(create).toHaveBeenCalledTimes(1);
+      .expect(410);
+    expect(create).not.toHaveBeenCalled();
   });
 
-  it('rechaza respuestas sin consentimiento antes del servicio', async () => {
+  it('cierra la encuesta incluso si el cuerpo está incompleto', async () => {
     await request(app.getHttpServer())
       .post('/api/encuestas')
       .send({ ...valid, consentimiento: false })
-      .expect(400);
+      .expect(410);
     expect(create).not.toHaveBeenCalled();
   });
 
