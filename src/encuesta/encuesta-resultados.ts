@@ -26,6 +26,11 @@ export type ResultadosEncuesta = {
   identificacion: Record<string, number>;
   impacto: Record<string, number>;
   iniciativas: Record<string, number>;
+  cruces: {
+    emocionesDeApoyo: number;
+    variasEmociones: number;
+    altaIdentificacionConImpacto: number;
+  };
 };
 
 function contador(
@@ -64,13 +69,33 @@ export function agregarResultados(
   const impacto = contador(IMPACTOS);
   const iniciativas = contador(INICIATIVAS);
   const dias = new Map<string, number>();
+  const cruces = {
+    emocionesDeApoyo: 0,
+    variasEmociones: 0,
+    altaIdentificacionConImpacto: 0,
+  };
 
   for (const respuesta of respuestas) {
     if (Array.isArray(respuesta.emociones)) {
       // La selección es múltiple: cada emoción cuenta una vez por envío.
-      for (const emocion of new Set(respuesta.emociones)) {
+      const selecciones = new Set(respuesta.emociones);
+      for (const emocion of selecciones) {
         sumarSiExiste(emociones, emocion);
       }
+      if (
+        ['acompañada', 'valorada', 'comprendida'].some((emocion) =>
+          selecciones.has(emocion),
+        )
+      ) {
+        cruces.emocionesDeApoyo += 1;
+      }
+      if (selecciones.size >= 2) cruces.variasEmociones += 1;
+    }
+    if (
+      [4, 5].includes(respuesta.nivelIdentificacion) &&
+      ['si', 'un_poco'].includes(respuesta.impactoAutopercepcion)
+    ) {
+      cruces.altaIdentificacionConImpacto += 1;
     }
     sumarSiExiste(identificacion, respuesta.nivelIdentificacion);
     sumarSiExiste(impacto, respuesta.impactoAutopercepcion);
@@ -92,5 +117,6 @@ export function agregarResultados(
     identificacion,
     impacto,
     iniciativas,
+    cruces,
   };
 }

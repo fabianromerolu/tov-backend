@@ -35,6 +35,11 @@ describe('agregarResultados', () => {
     expect(resultado.emociones.valorada).toBe(1);
     expect(resultado.emociones.acompañada).toBe(1);
     expect(resultado.identificacion['5']).toBe(1);
+    expect(resultado.cruces).toEqual({
+      emocionesDeApoyo: 1,
+      variasEmociones: 1,
+      altaIdentificacionConImpacto: 1,
+    });
     expect(resultado.porDia).toEqual([
       { fecha: '2026-10-26', total: 1 },
       { fecha: '2026-10-27', total: 1 },
